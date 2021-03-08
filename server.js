@@ -53,7 +53,8 @@ app.get('/api/timestamp', (req, res) => {
   const dt = tryParse(req.params.date);
   if (dt.invalid) {
     let d = new Date(req.params.date);
-    if (!(d instanceof Date && !isNaN(d))) {
+    if (d instanceof Date && !isNaN(d)) {
+      console.log('sus', d)
       res.json({ unix: d.getTime(), utc: d.toUTCString() })
     } else {
       res.json({ error: "Invalid Date" })
