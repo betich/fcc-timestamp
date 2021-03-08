@@ -20,19 +20,6 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-const parseStr = [
-  (time) => DateTime.fromFormat(time, "MMMM-d-yyyy"),
-  (time) => DateTime.fromFormat(time, "MMMM-dd-yyyy"),
-  (time) => DateTime.fromFormat(time, "LLLL-dd-yyyy"),
-  (time) => DateTime.fromFormat(time, "dd-LLLL-yyyy"),
-  (time) => DateTime.fromHTTP(time),
-  (time) => DateTime.fromISO(time)
-];
-
-const parseNum = [
-  (time) => DateTime.fromMillis(time)
-]
-
 function tryParseInt(str) {
   if (str.includes("-")) {
     return str;
@@ -44,27 +31,28 @@ function tryParseInt(str) {
 }
 
 function tryParse(time) {
-  let parsedTimes;
   let formattedTime = tryParseInt(time);
+  let result = null;
 
   if (typeof formattedTime === 'number') {
-    parsedTimes = parseNum.map((parse) => parse(formattedTime))
+    result = DateTime.fromMillis(formattedTime)
   } else {
-    parsedTimes = parseStr.map((parse) => parse(formattedTime));
-  }
-  let result = null;
-  
-  for (var i = 0; i < parsedTimes.length; i++) {
-    if (parsedTimes[i] !== null) result = parsedTimes[i];
+    result = DateTime.fromISO(formattedTime)
   }
 
   return result;
 }
 
 // your first API endpoint... 
-app.get('/api/timestamp/:timestamp', (req, res) => {
+app.get('/api/timestamp', (req, res) => {
+  const dt = DateTime.now();
+  res.json({ unix: dt.toMillis(), utc: dt.toHTTP() });
+})
+
+.get('/api/timestamp/:timestamp', (req, res) => {
   const dt = tryParse(req.params.timestamp);
-  res.json({ unix: dt.toMillis(), utc: dt.toHTTP() })
+  if (dt.invalid) res.json({ error: "Invalid Date" })
+  else res.json({ unix: dt.toMillis(), utc: dt.toHTTP() });
 })
 
 
