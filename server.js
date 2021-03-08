@@ -49,9 +49,16 @@ app.get('/api/timestamp', (req, res) => {
   res.json({ unix: dt.toMillis(), utc: dt.toHTTP() });
 })
 
-.get('/api/timestamp/:timestamp', (req, res) => {
-  const dt = tryParse(req.params.timestamp);
-  if (dt.invalid) res.json({ error: "Invalid Date" })
+.get('/api/timestamp/:date', (req, res) => {
+  const dt = tryParse(req.params.date);
+  if (dt.invalid) {
+    let d = new Date(req.params.date);
+    if (!(d instanceof Date && !isNaN(d))) {
+      res.json({ unix: d.getTime(), utc: d.toUTCString() })
+    } else {
+      res.json({ error: "Invalid Date" })
+    }
+  }
   else res.json({ unix: dt.toMillis(), utc: dt.toHTTP() });
 })
 
