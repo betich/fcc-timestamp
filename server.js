@@ -20,6 +20,8 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+/*
+
 function tryParseInt(str) {
   if (str.includes("-")) {
     return str;
@@ -42,6 +44,7 @@ function tryParse(time) {
 
   return result;
 }
+*/
 
 // your first API endpoint... 
 app.get('/api/timestamp', (req, res) => {
@@ -50,17 +53,17 @@ app.get('/api/timestamp', (req, res) => {
 })
 
 .get('/api/timestamp/:date', (req, res) => {
-  const dt = tryParse(req.params.date);
-  if (dt.invalid) {
-    let d = new Date(req.params.date);
-    if (d instanceof Date && !isNaN(d)) {
-      console.log('sus', d)
-      res.json({ unix: d.getTime(), utc: d.toUTCString() })
-    } else {
-      res.json({ error: "Invalid Date" })
-    }
+  //const dt = tryParse(req.params.date);
+  //if (dt.invalid) {
+  let time = (isNaN(+req.params.date)) ? req.params.date : +req.params.date;
+  let d = new Date(time);
+  if (d instanceof Date && !isNaN(d)) {
+    res.json({ unix: d.getTime(), utc: d.toUTCString() })
+  } else {
+    res.json({ error: "Invalid Date" })
   }
-  else res.json({ unix: dt.toMillis(), utc: dt.toHTTP() });
+  //}
+  //else res.json({ unix: dt.toMillis(), utc: dt.toHTTP() });
 })
 
 
